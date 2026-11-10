@@ -430,6 +430,20 @@ VNA_SHELL_FUNCTION(cmd_state)
                  get_level(), level_min(), level_max());
   }
   shell_printf("caloutput %s\r\n", setting.refer >= 0 && setting.refer < 7 ? cal_out[setting.refer] : "off");
+  static const char * const measurements[] = {"off", "harmonic", "oip3", "phase_noise", "snr", "pass_band",
+    "occupied_width", "am", "fm", "thd", "channel_power", "nf_tinysa", "nf_store", "nf_validate",
+    "nf_amplifier", "deconv", "linearity"};
+  shell_printf("measurement %s\r\n", setting.measurement < sizeof measurements / sizeof measurements[0] ?
+               measurements[setting.measurement] : "unknown");
+  char unit[8];                                   // the micro sign is a font glyph: print "u"
+  plot_printf(unit, sizeof unit, "%s", unit_string[setting.unit]);
+  for (char *c = unit; *c; c++) if ((unsigned char)*c < 0x20 || (unsigned char)*c > 0x7e) *c = 'u';
+  shell_printf("unit %s\r\n", unit);
+  static const char * const waterfall[] = {"off", "small", "big", "super"};
+  shell_printf("waterfall %s\r\n", setting.waterfall < 4 ? waterfall[setting.waterfall] : "unknown");
+#ifdef __LEVEL_METER__
+  shell_printf("level_meter %s\r\n", setting.level_meter ? "on" : "off");
+#endif
   shell_printf("correction %s\r\n", setting.disable_correction ? "off" : "on");
   shell_printf("calibrated %s\r\n", config.input_is_calibrated ? "yes" : "no");
   shell_printf("last_calibration %s\r\n",

@@ -1887,6 +1887,13 @@ typedef struct {
  */
 int parse_line(char *line, char* args[], int max_cnt);
 int plot_printf(char *str, int, const char *fmt, ...);
+#include <stdarg.h>
+int plot_vprintf(char *str, int size, const char *fmt, va_list ap);   // TinySAAI
+// TinySAAI console commands (ai/ai_ui.c, plot.c)
+void ai_cmd_ui(int argc, char *argv[]);
+void ai_cmd_param(int argc, char *argv[]);
+void ai_cmd_measure(int argc, char *argv[]);
+void ai_cmd_readout(int argc, char *argv[]);
 #define PULSE do { palClearPad(GPIOC, GPIOC_LED); palSetPad(GPIOC, GPIOC_LED);} while(0)
 //extern int setting_attenuate;
 //extern int settingPowerCal;

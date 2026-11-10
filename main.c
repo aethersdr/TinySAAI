@@ -49,9 +49,9 @@ volatile bool shell_direct_cmd = false;  // Shell thread executes a command itse
 // Shell command promt
 #define VNA_SHELL_PROMPT_STR     "ch> "
 // Shell max arguments
-#define VNA_SHELL_MAX_ARGUMENTS   4
+#define VNA_SHELL_MAX_ARGUMENTS   10   // TinySAAI: was 4
 // Shell max command line size
-#define VNA_SHELL_MAX_LENGTH     48
+#define VNA_SHELL_MAX_LENGTH     96   // TinySAAI: was 48
 
 // Shell command functions prototypes
 typedef void (*vna_shellcmd_t)(int argc, char *argv[]);
@@ -2883,6 +2883,10 @@ static const VNAShellCommand commands[] =
     { "calibrate", cmd_calibrate,  0 },             // TinySAAI
 #endif
     { "state", cmd_state,          0 },             // TinySAAI
+    { "ui", ai_cmd_ui,             CMD_WAIT_MUTEX },  // TinySAAI
+    { "param", ai_cmd_param,       CMD_WAIT_MUTEX },  // TinySAAI
+    { "measure", ai_cmd_measure,   CMD_WAIT_MUTEX },  // TinySAAI
+    { "readout", ai_cmd_readout,   CMD_WAIT_MUTEX },  // TinySAAI
     { "correction", cmd_correction,   CMD_RUN_IN_LOAD },
     { "calc", cmd_calc, CMD_WAIT_MUTEX | CMD_RUN_IN_LOAD},
     { "menu", cmd_menu, CMD_WAIT_MUTEX | CMD_RUN_IN_LOAD },

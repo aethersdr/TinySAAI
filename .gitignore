@@ -20,3 +20,6 @@ Rubbish*
 desktop.ini
 *.xml
 .megaignore
+
+# TinySAAI: the fork's own tools
+!ai/*.py

@@ -1647,7 +1647,21 @@ static msg_t cellPut10x14(void *ip, uint8_t ch) {
 #endif
 
 // Simple print in buffer function
+// TinySAAI: while set, cell_printf prints to the console instead of the screen
+static bool ai_readout_capture = false;
+
 int cell_printf(int16_t x, int16_t y, const char *fmt, ...) {
+  if (ai_readout_capture) {                   // TinySAAI "readout"
+    char text[64];
+    va_list ap;
+    if (*fmt == _FONT_s || *fmt == _FONT_b || *fmt == _FONT_w) fmt++;
+    va_start(ap, fmt);
+    plot_vprintf(text, sizeof text, fmt, ap);
+    va_end(ap);
+    for (char *p = text; *p; p++) if ((unsigned char)*p < 0x20 || (unsigned char)*p > 0x7e) *p = ' ';
+    shell_printf("%s\r\n", text);
+    return 0;
+  }
   // skip always if right
   if (x>=CELLWIDTH) return 0;
   // Init small cell print stream
@@ -2044,6 +2058,19 @@ static void cell_draw_marker_info(int x0, int y0)
       j++;
    }
   }
+}
+
+// TinySAAI: the marker and measurement readings, as the screen shows them
+void ai_cmd_readout(int argc, char *argv[])
+{
+  (void)argv;
+  if (argc != 0) {
+    shell_printf("usage: readout\r\n");
+    return;
+  }
+  ai_readout_capture = true;
+  cell_draw_marker_info(0, 0);
+  ai_readout_capture = false;
 }
 
 void

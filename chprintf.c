@@ -659,4 +659,16 @@ int plot_printf(char *str, int size, const char *fmt, ...) {
   return retval;
 }
 
+// TinySAAI: plot_printf with a va_list
+int plot_vprintf(char *str, int size, const char *fmt, va_list ap) {
+  printStream ps;
+  int retval;
+  if (size <= 0) return 0;
+  printObjectInit(&ps, size, (uint8_t *)str);
+  retval = chvprintf((BaseSequentialStream *)(void *)&ps, fmt, ap);
+  *(ps.buffer)=0;
+  if (retval > size-1) retval = size-1;
+  return retval;
+}
+
 /** @} */

@@ -180,6 +180,7 @@ static int16_t last_touch_y;
 #define KP_CANCEL 2
 
 static void ui_mode_keypad(int _keypad_mode);
+static void ai_keypad_answer(void);       // TinySAAI, ai/ai_ui.c
 // static void draw_menu(void);
 static void leave_ui_mode(void);
 static void erase_menu_buttons(void);
@@ -8175,7 +8176,10 @@ ui_process_keypad(void)
   if (!preset_text)
     kp_buf[0] = 0;
   kp_cursor = strlen(kp_buf);
-  if (in_menu_command) return;
+  if (in_menu_command) {
+    ai_keypad_answer();                       // TinySAAI: a queued console value answers the prompt
+    return;
+  }
   if (preset_text) {                          // show the default, ENTER accepts it as is
     if (IS_TXT_KEYBOARD)
       draw_text_input(kp_buf);
@@ -8843,3 +8847,6 @@ int check_touched(void)
 }
 
 #pragma GCC pop_options
+
+// TinySAAI: console access to every menu item, keypad parameter and measurement
+#include "ai/ai_ui.c"

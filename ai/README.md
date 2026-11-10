@@ -19,6 +19,32 @@ Base: upstream `ab5ecd5` (`tinySA4_v1.4-302-gab5ecd5`), branch `ai`.
 | `calibrate` | `calibrate ok`, or `calibrate failed: signal level incorrect at <stage> (<level> dBm); check the cable from CAL to RF`, or `calibrate failed: test failed at <stage> (<level> dBm)`, or `calibrate timeout` | Runs CONFIG > LEVEL CAL > CALIBRATE and blocks until it ends (about 80 s on an Ultra+ ZS407). Needs a short cable from CAL to RF. No "Touch screen to continue" wait. Like the menu version, it leaves the instrument with reset settings and the sweep paused. |
 | `state` | One `key value` line per setting | `mode`, `sweep`, `start_hz`, `stop_hz`, `points`, `rbw_hz` (0 = auto), `rbw_actual_hz`, `attenuation_db`, `attenuation_auto`, `lna`, `spur`, `ext_gain_db`, `output`, `generator_hz`, `level_dbm`, `level_min_dbm`, `level_max_dbm` (the last four in output modes), `caloutput`, `correction`, `calibrated`, `last_calibration`. Answers even during a calibration. |
 
+### Every menu item, parameter and measurement
+
+[`COVERAGE.md`](COVERAGE.md) lists everything, generated from the instrument by
+`ai/make_coverage.py`: 411 analyzer and 191 generator menu items, 59 numeric
+parameters, 16 measurements and 110 console commands, and what is not reachable
+from the console (refused items, and the few features not built yet).
+
+| Command | Use |
+|---|---|
+| `ui` / `ui ls <key>` / `ui tree` / `ui get <key>` | List menu items as `key\|kind\|state\|value\|label`, rendered exactly as the screen renders them, so `state` (on/off) and `value` are live readback. Keys are the labels: `display.waterfall`, `frequency.rbw.rbw_4`, `level.trigger.single`. In a generator mode the root is the generator menu. Listing calls no action. |
+| `ui <key> [values...] [confirm]` | Press an item, exactly as a touch would. Values answer the keypad prompts it opens, in order (`ui frequency.span 1M`). Replies `ok` and the item's new line, or `error: … needs a value for "<prompt>"`. |
+| `param` / `param <name> [<value> [confirm]]` | All 59 keypad parameters (`span`, `reflevel`, `sweep_time`, `marker`, …) by name: read, or set through the firmware's own keypad handling. |
+| `measure` / `measure <name> [values...]` | Set up any of the 16 MEASURE modes with its prompts answered (`measure phase_noise 30M 10k`, `measure oip3 29.99M 30.01M`). A missing value is reported by its prompt text and the measurement is switched off; settings its setup already changed (center, span, RBW, markers) stay changed. `nf_store` saves to flash and needs `confirm`. |
+| `readout` | The marker and measurement results, as the screen shows them (`SNR: 54.7dB`, `-91.6dBc/Hz`). Run `waitscan 2` after a change first. |
+
+Guards: items that wait for a person at the screen (touch calibration, self test,
+version, brightness, SD browser, USB disk, firmware update, the menu CALIBRATE
+items), cut the USB console (connection, serial speed) or erase the configuration
+(clear config) are refused. Items and parameters that change the stored
+configuration, calibration or synthesizer setup need a trailing `confirm`. Each
+press on the way to an item must open the expected menu (INTERNALS opens only with
+its code), or `ui` stops before pressing anything inside it.
+`state` also reports `measurement`, `unit`, `waterfall` and `level_meter`.
+
+The console line limits are raised from 4 arguments and 48 characters to 10 and 96.
+
 ## What it changes
 
 Only replies to **invalid** input change. Valid input behaves exactly as upstream.
@@ -64,8 +90,22 @@ On a tinySA Ultra+ ZS407 (hardware V0.5.4), 2026-11-10:
 - Every error case in the table above, and the valid cases next to them, on the
   device.
 
+- `ui tree` walked in analyzer and generator mode; no duplicate keys; the stored
+  calibration (level offsets, correction tables, frequency correction) identical
+  before and after all the tests. Sweep-thread stack: 528 bytes free at the
+  worst point seen (`threads`).
+- `param` and `ui` reads, presses with keypad values, refusals and `confirm`
+  guards; `measure` with and without enough values; `readout` after `waitscan`
+  agreeing with `marker` on the CAL tone (phase noise −91.6 dBc/Hz at 10 kHz,
+  channel power, SNR 54.7 dB, harmonics of the square-wave CAL output); 15 of
+  the 16 measurement modes set up and read (`nf_store` not run).
+- Screen captures after keypad presses in analyzer and generator mode: the
+  keypad closes as after a touch entry.
+
 Not yet tested: the `calibrate` failure replies (it needs the cable removed),
-and the timeout.
+the timeout, and pressing every one of the 600 items (all were listed; a
+representative set of each kind was pressed: settings, values, actions,
+children of callback-opened menus, generator items, INTERNALS).
 
 ## Backlog
 

@@ -1,0 +1,106 @@
+version      8                                    
+reset        8                                    
+freq         1 | 2                                freq {frequency(Hz)}
+time         2                                    time {[%s] 0-99} or {b 0xYYMMDD 0xHHMMSS} | words: y|m|d|h|min|sec
+dac          2                                    dac {value(0-4095)}
+nf           2                                    nf {value}
+saveconfig   2                                    
+clearconfig  2                                    clearconfig {protection key}
+data         1                                    data [0-2]
+frequencies  0                                    
+scan         1                                    scan {start(Hz)} {stop(Hz)} [points] [outmask]
+hop          1                                    hop {start(Hz)} {stop(Hz)} {step(Hz) | points} [outmask]
+scanraw      1                                    scanraw {start(Hz)} {stop(Hz)} [points] [options]
+abort        0                                    usage: abort [%s] | words: off|on
+zero         1 | 2                                zero {level} %ddBm
+sweep        1 | 2                                sweep {start(Hz)} [stop(Hz)] [points] | words: start|stop|center|span|cw,normal|precise|fast|noise|go|abort
+test         0                                    
+touchcal     1                                    
+touchtest    1                                    
+pause        1 | 2                                
+restart      1 | 2                                
+resume       1 | 2                                
+wait         2                                    wait {seconds}
+waitscan     2                                    waitscan [{scans}]
+repeat       2                                    
+status       2                                    
+caloutput    2                                    caloutput %s | words: off|30|15|10|4|3|2|1
+save         2                                    save {id}
+recall       1 | 2                                recall {id}
+trace        1 | 2                                trace %d value %d %.2f; trace {%s} | words: dBm|dBmV|dBuV|RAW|V|Vpp|W|dBV,scale|reflevel,value,copy|freeze|subtract|view|value
+trigger      2                                    trigger {value} | words: auto|normal|single
+marker       2                                    marker [n] [%s|{freq}|{index}] [{n}|%s] | words: on|off|peak|delta|noise|tracking|trace|trace_aver,off|on
+channel      1                                    channel [1-3]; channel[%d] : %4.1f
+line         2                                    line off|{level}
+usart        1                                    
+usart_cfg    1 | 2                                
+capture      1 | 4                                
+refresh      8                                     | options: off|on|rle
+touch        8                                    
+release      8                                    
+vbat         1                                    
+vbat_offset  2                                    
+help         8                                    
+info         8                                    
+color        2                                    color {id} {rgb24}
+if           2                                    usage: if {%s} %QHz
+if1          2                                    if1 {975M..979M} %QHz
+lna2         2                                    lna2 0..7|auto
+agc          2                                    agc 0..7|auto
+actual_freq  1 | 2                                
+freq_corr    1 | 2                                
+attenuate    1 | 2                                attenuate 0..31|auto %4.2F
+level        1 | 2                                level %.1f..%.1f
+sweeptime    1 | 2                                sweeptime 0.003..60 %5.3Fs
+leveloffset  2                                    leveloffset [%s] {output} [-20..+20] | words: low|switch|receive_switch|out_switch|lna|harmonic|shift|shift1|shift2|shift3|shift4|drive1|drive2|drive3|direct|di
+levelchange  2                                    usage: levelchange -90..+90
+modulation   2                                    modulation %s 100..6000 | words: off|am|fm|freq|depth|deviation
+rbw          1 | 2                                rbw 0.2..850|auto %.1FHz
+mode         1 | 2                                usage: mode [low] %s | words: low,input|output
+spur         1 | 2                                 | options: off|on|auto
+avoid        1 | 2                                 | options: auto|off|on|dump
+lna          1 | 2                                 | options: off|on
+direct       1 | 2                                direct {%s} {freq(Hz)} | words: start|stop|on|off
+ultra        1 | 2                                ultra %s {freq}
+load         2                                    load 0..4
+ext_gain     2                                    ext_gain -100.0..+100.0 %.1f
+output       2                                     | options: on|off|normal|mixer
+deviceid     2                                    deviceid %d; deviceid [<number>]
+selftest     0                                    selftest (1-3) [arg]
+calibrate    0                                    calibrate; calibrate failed: signal level incorrect at %s (%.1f dBm); check the cable from CAL to RF; calibrate failed: test failed at %s (%.1f dBm); calibrate 
+state        0                                    state
+correction   2                                    correction %s; correction %s %d %D %.1f; correction %s %s frequency(Hz) value(dB); correction table %s reset | words: low|lna|ultra|ultra_lna|direct|direct_lna|
+calc         1 | 2                                calc [{trace#}] %s %s | words: off|minh|maxh|maxd|aver4|aver16|aver|quasi|log|lin
+menu         1 | 2                                
+text         2                                    
+remark       2                                    
+sd_list      1                                    sd_list {pattern}
+sd_read      1                                    usage: sd_read {filename}
+sd_delete    1                                    sd_delete {filename}
+usbdisk      8                                     | options: off|on
+fwupdate     1                                    fwupdate [{file} [flash]]
+threads      8                                    
+y            1                                    y {addr(0-95)} [value(0-0xFF)]
+i            1                                    
+v            1                                    
+a            1                                    a=%U
+b            1                                    b=%U
+t            1                                    
+k            1                                    
+e            1                                    e=%d
+s            1                                    s=%d; sweep point count is invalid
+m            0                                    
+p            1                                    
+w            1                                    
+o            1                                    
+d            1                                    
+f            1                                    
+u            1                                    
+q            1                                    q [s0..1|d-1,0..18|a0..63|p0..4]
+g            1                                    
+n            1                                    
+z            1                                    z 0..30000 %d
+r            1                                    
+c            1                                    
+h            1                                    
+x            1                                    x value(0-FFFFFFFF); x=%x
