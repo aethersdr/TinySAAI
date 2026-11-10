@@ -1,4 +1,4 @@
 [submodule "ChibiOS"]
-	path = ChibiOS
+	path = lib/ChibiOS
 	url = https://github.com/edy555/ChibiOS.git
 	branch = I2SFULLDUPLEX

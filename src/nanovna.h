@@ -1780,8 +1780,8 @@ void rtc_set_time(uint32_t dr, uint32_t tr);
 
 // SD Card support, discio functions for FatFS lib implemented in ili9341.c
 #ifdef  __USE_SD_CARD__
-#include "../FatFs/ff.h"
-#include "../FatFs/diskio.h"
+#include "ff.h"
+#include "diskio.h"
 extern uint16_t sd_card_inserted_at_boot;
 bool SD_Inserted(void);
 void SD_PowerOff(void);

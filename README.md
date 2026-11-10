@@ -79,6 +79,32 @@ V0.5.4) only. The other Ultra models and the original tinySA (`F072` target)
 have not been built or tested with these changes. [`ai/README.md`](ai/README.md)
 records what was verified on the instrument and what was not.
 
+## Layout
+
+Upstream keeps every source file in the repository root. The fork sorts them
+into folders. Files were moved with `git mv`, so `git log --follow` shows each
+file's full upstream history. The layout changes no code: built with the same
+version string, the Ultra image is byte-identical to the flat layout's, apart
+from the build time the firmware embeds.
+
+| Path | Contents |
+|---|---|
+| `src/` | Firmware core: `main.c` (which includes `sa_core.c` and `sa_cmd.c`), `ui.c`, `plot.c`, `waterfall.c`, `flash.c`, `fw_update.c`, `rtc.c`, `nanovna.h`, and the project's own `chprintf.c` and `hal_adc_lld.c`, which replace ChibiOS's copies |
+| `src/drivers/` | Chip and USB drivers: display, Si4432/Si4468, Si5351, TLV320AIC3204, USB serial and mass storage |
+| `src/drivers/si4468/` | Si4468 radio configurations, one per RBW |
+| `src/fonts/` | Bitmap fonts |
+| `boards/` | Board definitions for the original tinySA (`NANOVNA_STM32_F072`) and the Ultra (`NANOVNA_STM32_F303`), and the linker scripts |
+| `lib/` | ChibiOS (submodule) and FatFs |
+| `ai/` | Everything TinySAAI adds: console commands, the coverage generator and the flashing script |
+| `tools/` | Upstream's helper scripts and Python client |
+| `docs/` | Images |
+| root | `Makefile`; `chconf.h`, `halconf.h` and `mcuconf.h`, which stay here because ChibiOS's build reads them from the directory `make` runs in |
+
+Bringing in upstream changes: `git merge upstream/main` follows the moves for
+files that already exist. A file that upstream adds later lands in the root and
+needs moving by hand. To offer a change back upstream, rewrite its paths to
+upstream's flat layout first.
+
 ## Build and flash
 
 Get the source with its submodule:

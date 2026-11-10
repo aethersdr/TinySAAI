@@ -71,7 +71,7 @@ endif
 # or     va.b-nnn-gxxxxxxx
 # or     ...
 
-VERSION_FILE = version.txt
+VERSION_FILE = build/version.txt
 GIT_VERSION = $(strip $(shell git describe --tags --long --always --dirty 2>/dev/null))
 
 ifeq ($(GIT_VERSION),)
@@ -81,7 +81,7 @@ endif
 FILE_VERSION = $(strip $(shell cat $(VERSION_FILE) 2>/dev/null))
 
 ifneq ($(FILE_VERSION),$(GIT_VERSION))
-  $(shell printf '%s\n' '$(GIT_VERSION)' > $(VERSION_FILE))
+  $(shell mkdir -p build; printf '%s\n' '$(GIT_VERSION)' > $(VERSION_FILE))
 endif
 
 ifeq ($(VERSION),)
@@ -127,7 +127,7 @@ endif
 
 # Imported source files and paths
 #CHIBIOS = ../ChibiOS-RT
-CHIBIOS = ChibiOS
+CHIBIOS = lib/ChibiOS
 PROJ = .
 # Startup files.
 
@@ -135,13 +135,13 @@ ifeq ($(TARGET),F303)
  include $(CHIBIOS)/os/common/startup/ARMCMx/compilers/GCC/mk/startup_stm32f3xx.mk
  include $(CHIBIOS)/os/hal/hal.mk
  include $(CHIBIOS)/os/hal/ports/STM32/STM32F3xx/platform.mk
- include NANOVNA_STM32_F303/board.mk
+ include boards/NANOVNA_STM32_F303/board.mk
 else
 include $(CHIBIOS)/os/common/startup/ARMCMx/compilers/GCC/mk/startup_stm32f0xx.mk
 # HAL-OSAL files (optional).
 include $(CHIBIOS)/os/hal/hal.mk
 include $(CHIBIOS)/os/hal/ports/STM32/STM32F0xx/platform.mk
-include NANOVNA_STM32_F072/board.mk
+include boards/NANOVNA_STM32_F072/board.mk
 endif
 
 include $(CHIBIOS)/os/hal/osal/rt/osal.mk
@@ -157,12 +157,20 @@ endif
 include $(CHIBIOS)/os/hal/lib/streams/streams.mk
 #include $(CHIBIOS)/os/various/shell/shell.mk
 
+# TinySAAI layout: upstream kept its own chprintf.c and hal_adc_lld.c in the
+# repository root, where make found them before ChibiOS's copies of the same
+# name. Now that they live in src/, name them in place of ChibiOS's.
+STREAMSSRC := $(patsubst %/chprintf.c,src/chprintf.c,$(STREAMSSRC))
+PLATFORMSRC := $(patsubst %/hal_adc_lld.c,src/hal_adc_lld.c,$(PLATFORMSRC))
+# ChibiOS's rules find a source by its file name, so search src/ first.
+vpath %.c src
+
 # Define linker script file here
 #LDSCRIPT= $(STARTUPLD)/STM32F072xB.ld
 ifeq ($(TARGET),F303)
- LDSCRIPT= STM32F303xC.ld
+ LDSCRIPT= boards/STM32F303xC.ld
 else
- LDSCRIPT= STM32F072xB.ld
+ LDSCRIPT= boards/STM32F072xB.ld
 endif
 
 # C sources that can be compiled in ARM or THUMB mode depending on the global
@@ -176,13 +184,15 @@ CSRC = $(STARTUPSRC) \
        $(PLATFORMSRC) \
        $(BOARDSRC) \
        $(STREAMSSRC) \
-       FatFs/ff.c \
-       FatFs/ffunicode.c \
-       usbcfg.c \
-       usb_msc.c \
-       fw_update.c \
-       NANOVNA_STM32_F303/adc.c \
-       main.c plot.c ui.c ili9341.c tlv320aic3204.c si5351.c numfont20x22.c Font5x7.c Font10x14.c flash.c si4468.c  Font7x13b.c rtc.c
+       lib/FatFs/ff.c \
+       lib/FatFs/ffunicode.c \
+       src/drivers/usbcfg.c \
+       src/drivers/usb_msc.c \
+       src/fw_update.c \
+       boards/NANOVNA_STM32_F303/adc.c \
+       src/main.c src/plot.c src/ui.c src/drivers/ili9341.c src/drivers/tlv320aic3204.c \
+       src/drivers/si5351.c src/fonts/numfont20x22.c src/fonts/Font5x7.c src/fonts/Font10x14.c \
+       src/flash.c src/drivers/si4468.c src/fonts/Font7x13b.c src/rtc.c
 else
 CSRC = $(STARTUPSRC) \
        $(KERNSRC) \
@@ -192,9 +202,10 @@ CSRC = $(STARTUPSRC) \
        $(PLATFORMSRC) \
        $(BOARDSRC) \
        $(STREAMSSRC) \
-       usbcfg.c \
-       NANOVNA_STM32_F072/adc.c \
-       main.c plot.c ui.c ili9341.c numfont20x22.c Font5x7.c Font10x14.c flash.c si4432.c  Font7x13b.c
+       src/drivers/usbcfg.c \
+       boards/NANOVNA_STM32_F072/adc.c \
+       src/main.c src/plot.c src/ui.c src/drivers/ili9341.c src/fonts/numfont20x22.c \
+       src/fonts/Font5x7.c src/fonts/Font10x14.c src/flash.c src/drivers/si4432.c src/fonts/Font7x13b.c
 endif
 
 # C++ sources that can be compiled in ARM or THUMB mode depending on the global
@@ -296,7 +307,7 @@ endif
 UADEFS =
 
 # List all user directories here
-UINCDIR =
+UINCDIR = src src/drivers src/drivers/si4468 boards lib/FatFs
 
 # List the user directory to look for the libraries here
 ULIBDIR =
@@ -336,9 +347,9 @@ dfu:	build/$(PROJECT).hex
 
 TAGS: Makefile
 ifeq ($(TARGET),F303)
-	@etags *.[ch] NANOVNA_STM32_F303/*.[ch] $(shell find ChibiOS/os/hal/ports/STM32/STM32F3xx ChibiOS/os -name \*.\[ch\] -print) 
+	@etags src/*.[ch] src/*/*.[ch] *.h boards/NANOVNA_STM32_F303/*.[ch] $(shell find lib/ChibiOS/os/hal/ports/STM32/STM32F3xx lib/ChibiOS/os -name \*.\[ch\] -print) 
 else
-	@etags *.[ch] NANOVNA_STM32_F072/*.[ch] $(shell find ChibiOS/os/hal/ports/STM32/STM32F0xx ChibiOS/os -name \*.\[ch\] -print) 
+	@etags src/*.[ch] src/*/*.[ch] *.h boards/NANOVNA_STM32_F072/*.[ch] $(shell find lib/ChibiOS/os/hal/ports/STM32/STM32F0xx lib/ChibiOS/os -name \*.\[ch\] -print) 
 endif
 	@ls -l TAGS
 
