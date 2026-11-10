@@ -23,7 +23,7 @@ Base: upstream `ab5ecd5` (`tinySA4_v1.4-302-gab5ecd5`), branch `ai`.
 
 [`COVERAGE.md`](COVERAGE.md) lists everything, generated from the instrument by
 `ai/make_coverage.py`: 411 analyzer and 191 generator menu items, 60 numeric
-parameters, 16 measurements and 110 console commands, and what is not reachable
+parameters, 16 measurements and 112 console commands, and what is not reachable
 from the console (refused items, and the few features not built yet).
 
 | Command | Use |
