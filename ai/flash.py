@@ -22,7 +22,7 @@ import tty
 
 DFU_ID = "0483:df11"
 PORT_GLOB = "/dev/serial/by-id/usb-tinysa.org_tinySA4_*-if00"
-CODE_LIMIT = 0x3C000                       # flash0 length in STM32F303xC.ld
+CODE_LIMIT = 0x3C000                       # flash0 length in boards/STM32F303xC.ld
 
 
 def console(port, line, timeout=3.0):

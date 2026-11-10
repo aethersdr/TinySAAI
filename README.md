@@ -113,12 +113,16 @@ Get the source with its submodule:
     $ cd TinySAAI
     $ git submodule update --init --recursive
 
-Build for the tinySA Ultra / Ultra+ with a recent `arm-none-eabi-gcc`:
+Build for the tinySA Ultra / Ultra+ with a recent `arm-none-eabi-gcc` and its
+newlib (on Arch: `arm-none-eabi-gcc arm-none-eabi-newlib`; on Debian/Ubuntu:
+`gcc-arm-none-eabi libnewlib-arm-none-eabi`). The image is
+`build/tinySA4.bin`:
 
     $ make TARGET="F303"
 
-Flash without touching the unit (needs `dfu-util` and access to the serial
-port). The script switches the unit to DFU over the console, flashes the image,
+Flash without touching the unit. This needs `dfu-util`, and permission to open
+both the unit's serial port and the STM32 DFU device (USB `0483:df11`), for
+example through a udev rule. The script switches the unit to DFU over the console, flashes the image,
 waits for it to restart and prints the version:
 
     $ python3 ai/flash.py build/tinySA4.bin
