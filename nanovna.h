@@ -403,6 +403,13 @@ void reset_band(void);
 
 
 extern float level_min(void);
+// TinySAAI: outcome of the last level calibration, for the "calibrate" and "state" console commands
+enum { CAL_RESULT_NONE, CAL_RESULT_RUNNING, CAL_RESULT_OK, CAL_RESULT_LOW_LEVEL, CAL_RESULT_FAILED };
+extern volatile uint8_t calibration_result;
+extern uint8_t calibration_result_stage;        // calibration stage, or 0xFF for the initial check
+extern float calibration_result_level;          // peak level measured where it stopped
+extern volatile bool calibration_from_console;  // skip the "Touch screen to continue" wait
+const char *calibration_stage_name(uint8_t stage);
 extern float level_max(void);
 extern float level_range(void);
 extern float channel_power[3];

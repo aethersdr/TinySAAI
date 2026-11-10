@@ -100,6 +100,7 @@ const char * const info_about[]={
   "2019-2026 Copyright @Erik Kaashoek",
   "2016-2020 Copyright @edy555",
   "SW licensed under GPL. See: https://github.com/erikkaashoek/tinySA",
+  "Modified: TinySAAI https://github.com/aethersdr/TinySAAI",
   "Version: " VERSION,
   "Build Time: " __DATE__ " - " __TIME__,
   "Kernel: " CH_KERNEL_VERSION,
@@ -2878,6 +2879,10 @@ static const VNAShellCommand commands[] =
     { "output", cmd_output,    CMD_RUN_IN_LOAD },
     { "deviceid", cmd_deviceid,    CMD_RUN_IN_LOAD },
     { "selftest", cmd_selftest,    0 },
+#ifdef __CALIBRATE__
+    { "calibrate", cmd_calibrate,  0 },             // TinySAAI
+#endif
+    { "state", cmd_state,          0 },             // TinySAAI
     { "correction", cmd_correction,   CMD_RUN_IN_LOAD },
     { "calc", cmd_calc, CMD_WAIT_MUTEX | CMD_RUN_IN_LOAD},
     { "menu", cmd_menu, CMD_WAIT_MUTEX | CMD_RUN_IN_LOAD },

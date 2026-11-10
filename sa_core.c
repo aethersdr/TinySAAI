@@ -505,6 +505,11 @@ uint8_t ignore_stored = false;
 uint8_t in_step_test = false;
 uint8_t in_calibration = false;
 uint8_t calibration_stage;
+// TinySAAI: see nanovna.h
+volatile uint8_t calibration_result = CAL_RESULT_NONE;
+uint8_t calibration_result_stage = 0xFF;
+float calibration_result_level = 0.0;
+volatile bool calibration_from_console = false;
 
 void update_min_max_freq(void)
 {
@@ -7897,6 +7902,19 @@ enum {CS_NORMAL, CS_LNA, CS_SWITCH, CS_ULTRA, CS_ULTRA_LNA, CS_DIRECT_REF, CS_DI
 enum {CS_NORMAL, CS_SWITCH, CS_MAX };
 #endif
 
+// TinySAAI: names of the stages above, for the "calibrate" console command
+const char *calibration_stage_name(uint8_t stage)
+{
+#ifdef TINYSA4
+  static const char * const names[] = {"normal", "lna", "switch", "ultra", "ultra_lna", "direct_ref",
+    "direct", "direct_lna", "spur_ref", "spur_error", "harmonic", "harmonic_lna"};
+#else
+  static const char * const names[] = {"normal", "switch"};
+#endif
+  if (stage == 0xFF) return "initial check";
+  return stage < sizeof names / sizeof names[0] ? names[stage] : "unknown";
+}
+
 void calibration_busy(void) {
   ili9341_set_foreground(LCD_BRIGHT_COLOR_GREEN);
   ili9341_drawstring_7x13("Calibration busy", 40, 220);
@@ -7968,6 +7986,8 @@ void calibrate_harmonic(void)
 void calibrate(void)
 {
   int local_test_status;
+  bool cal_in_stages = false;                     // TinySAAI: false while in the initial check
+  calibration_result = CAL_RESULT_RUNNING;
   int old_sweep_points = setting._sweep_points;
 #ifdef TINYSA4
   int old_ultra = config.ultra;
@@ -8053,6 +8073,7 @@ void calibrate(void)
 #ifdef TINYSA4
   //int current_correction_calibration = 0;
 #endif
+  cal_in_stages = true;
   for (calibration_stage = CS_NORMAL; calibration_stage < CS_MAX ; calibration_stage++) {
     for (int k = 0; k<3; k++) {     // max 3 retries
       float offset = 0.0;
@@ -8216,6 +8237,9 @@ void calibrate(void)
 #ifdef TINYSA4
 low_level:
 #endif
+          calibration_result_stage = cal_in_stages ? calibration_stage : 0xFF;
+          calibration_result_level = peakLevel;
+          calibration_result = CAL_RESULT_LOW_LEVEL;
           ili9341_set_foreground(LCD_BRIGHT_COLOR_RED);
           ili9341_drawstring_7x13("Signal level incorrect", 30, CAL_MSG_Y);
           ili9341_drawstring_7x13("Check cable between connectors", 30, CAL_MSG_Y + 20);
@@ -8225,6 +8249,9 @@ low_level:
         if (local_test_status != TS_PASS) {
           ili9341_set_foreground(LCD_BRIGHT_COLOR_RED);
           ili9341_drawstring_7x13("Calibration failed", 30, CAL_MSG_Y + 20);
+          calibration_result_stage = calibration_stage;
+          calibration_result_level = peakLevel;
+          calibration_result = CAL_RESULT_FAILED;
           goto quit;
         }
 #ifdef TINYSA4
@@ -8303,14 +8330,21 @@ low_level:
   config.ultra = old_ultra;
 #endif
   config_save();
+  calibration_result = CAL_RESULT_OK;
   ili9341_set_foreground(LCD_BRIGHT_COLOR_GREEN);
   ili9341_drawstring_7x13("Calibration complete", 40, CAL_MSG_Y + 20);
 quit:
 #ifdef TINYSA4
   config.ultra = old_ultra;
 #endif
-  ili9341_drawstring_7x13("Touch screen to continue", 40, CAL_MSG_Y + 40);
-  wait_user();
+  if (calibration_result == CAL_RESULT_RUNNING)   // TinySAAI: an exit that set no outcome
+    calibration_result = CAL_RESULT_FAILED;
+  if (calibration_from_console)                   // TinySAAI: nobody is at the screen
+    calibration_from_console = false;
+  else {
+    ili9341_drawstring_7x13("Touch screen to continue", 40, CAL_MSG_Y + 40);
+    wait_user();
+  }
   ili9341_clear_screen();
   set_sweep_points(old_sweep_points);
   in_selftest = false;

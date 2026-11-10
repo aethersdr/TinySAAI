@@ -351,6 +351,91 @@ VNA_SHELL_FUNCTION(cmd_agc)
 #endif
 
 
+// TinySAAI: true if s is a whole number (or, with fraction, a decimal number)
+static bool console_is_number(const char *s, bool fraction)
+{
+  if (*s == '-' || *s == '+') s++;
+  bool digits = false, dot = false;
+  for (; *s; s++) {
+    if (*s >= '0' && *s <= '9') digits = true;
+    else if (*s == '.' && fraction && !dot) dot = true;
+    else return false;
+  }
+  return digits;
+}
+
+#ifdef __CALIBRATE__
+// TinySAAI: run the level calibration (CONFIG > LEVEL CAL > CALIBRATE) from the
+// console and report its outcome. Needs a cable from CAL to RF. Blocks until done;
+// the routine runs in the sweep thread exactly as from the menu.
+VNA_SHELL_FUNCTION(cmd_calibrate)
+{
+  (void)argv;
+  if (argc != 0) {
+    usage_printf("calibrate\r\n");
+    return;
+  }
+  calibration_from_console = true;
+  calibration_result = CAL_RESULT_RUNNING;
+  sweep_mode = SWEEP_CALIBRATE;
+  for (int t = 0; calibration_result == CAL_RESULT_RUNNING; t++) {
+    if (t >= 6000) {                          // 10 minutes
+      shell_printf("calibrate timeout\r\n");
+      return;
+    }
+    chThdSleepMilliseconds(100);
+  }
+  switch (calibration_result) {
+  case CAL_RESULT_OK:
+    shell_printf("calibrate ok\r\n");
+    break;
+  case CAL_RESULT_LOW_LEVEL:
+    shell_printf("calibrate failed: signal level incorrect at %s (%.1f dBm); check the cable from CAL to RF\r\n",
+                 calibration_stage_name(calibration_result_stage), calibration_result_level);
+    break;
+  default:
+    shell_printf("calibrate failed: test failed at %s (%.1f dBm)\r\n",
+                 calibration_stage_name(calibration_result_stage), calibration_result_level);
+  }
+}
+#endif
+
+// TinySAAI: every setting an agent needs, one "key value" line each, including the
+// ones the console otherwise cannot read back (mode, LNA, output, level, CAL output).
+VNA_SHELL_FUNCTION(cmd_state)
+{
+  (void)argv;
+  if (argc != 0) {
+    usage_printf("state\r\n");
+    return;
+  }
+  static const char * const modes[] = {"low_input", "high_input", "low_output", "high_output", "ultra_input"};
+  static const char * const spur[] = {"off", "on", "auto", "auto"};
+  static const char * const cal_out[] = {"30", "15", "10", "4", "3", "2", "1"};
+  static const char * const cal_results[] = {"none", "running", "ok", "signal_level_incorrect", "failed"};
+  shell_printf("mode %s\r\n", setting.mode < sizeof modes / sizeof modes[0] ? modes[setting.mode] : "unknown");
+  shell_printf("sweep %s\r\n", is_paused() ? "paused" : "running");
+  shell_printf("start_hz %U\r\nstop_hz %U\r\npoints %d\r\n",
+               get_sweep_frequency(ST_START), get_sweep_frequency(ST_STOP), setting._sweep_points);
+  shell_printf("rbw_hz %d\r\nrbw_actual_hz %d\r\n", (int)setting.rbw_x10 * 100, (int)actual_rbw_x10 * 100);
+  shell_printf("attenuation_db %.1f\r\nattenuation_auto %s\r\n", get_attenuation(),
+               setting.auto_attenuation ? "on" : "off");
+  shell_printf("lna %s\r\n", setting.extra_lna ? "on" : "off");
+  shell_printf("spur %s\r\n", setting.spur_removal < 4 ? spur[setting.spur_removal] : "unknown");
+  shell_printf("ext_gain_db %.1f\r\n", setting.external_gain);
+  shell_printf("output %s\r\n", setting.mute ? "off" : "on");
+  if (setting.mode == M_GENLOW || setting.mode == M_GENHIGH) {
+    shell_printf("generator_hz %U\r\n", get_sweep_frequency(ST_CENTER));
+    shell_printf("level_dbm %.1f\r\nlevel_min_dbm %.1f\r\nlevel_max_dbm %.1f\r\n",
+                 get_level(), level_min(), level_max());
+  }
+  shell_printf("caloutput %s\r\n", setting.refer >= 0 && setting.refer < 7 ? cal_out[setting.refer] : "off");
+  shell_printf("correction %s\r\n", setting.disable_correction ? "off" : "on");
+  shell_printf("calibrated %s\r\n", config.input_is_calibrated ? "yes" : "no");
+  shell_printf("last_calibration %s\r\n",
+               calibration_result < 5 ? cal_results[calibration_result] : "unknown");
+}
+
 VNA_SHELL_FUNCTION(cmd_attenuate)
 {
   if (argc != 1 || argv[0][0] == '?') {
@@ -361,9 +446,15 @@ VNA_SHELL_FUNCTION(cmd_attenuate)
     if (!setting.auto_attenuation)
       set_auto_attenuation();
   } else {
+    if (!console_is_number(argv[0], false)) {     // TinySAAI: reject instead of reading 0
+      shell_printf("error: attenuate 0..31|auto\r\n");
+      return;
+    }
     int a = my_atoi(argv[0]);
-//    if (a < 0 || a>31)
-//      goto usage;
+    if (a < 0 || a>31) {                          // TinySAAI: was not checked
+      shell_printf("error: attenuate 0..31|auto\r\n");
+      return;
+    }
     if (get_attenuation() != a)
       set_attenuation(a);
   }
@@ -373,13 +464,19 @@ VNA_SHELL_FUNCTION(cmd_attenuate)
 VNA_SHELL_FUNCTION(cmd_level)
 {
   if (argc != 1  || argv[0][0] == '?') {
-    if (setting.mode==M_GENLOW)
-      usage_printf("level -76..-6\r\n");
-    if (setting.mode==M_GENHIGH)
-      usage_printf("level -38..13\r\n");
+    if (setting.mode==M_GENLOW || setting.mode==M_GENHIGH)   // TinySAAI: the limits in use, not fixed text
+      usage_printf("level %.1f..%.1f\r\n", level_min(), level_max());
+    return;
+  }
+  if (!console_is_number(argv[0], true)) {
+    shell_printf("error: level needs a number in dBm\r\n");
     return;
   }
   float f = my_atof(argv[0]);
+  if ((setting.mode==M_GENLOW || setting.mode==M_GENHIGH) && (f < level_min() || f > level_max())) {
+    shell_printf("error: level %.1f..%.1f\r\n", level_min(), level_max());   // TinySAAI: was clamped silently
+    return;
+  }
   set_level(f);
 }
 
@@ -1379,6 +1476,8 @@ VNA_SHELL_FUNCTION(cmd_caloutput)
   int m = get_str_index(argv[0], cmd);
   if (m != -1)
     set_refer_output(m - 1);
+  else
+    shell_printf("error: caloutput %s\r\n", cmd);   // TinySAAI: was ignored silently
 }
 
 #ifdef TINYSA4

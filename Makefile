@@ -85,7 +85,7 @@ ifneq ($(FILE_VERSION),$(GIT_VERSION))
 endif
 
 ifeq ($(VERSION),)
-  VERSION="$(PROJECT)_$(GIT_VERSION)"
+  VERSION="$(PROJECT)_$(GIT_VERSION)-TinySAAI"
 endif
 
 ##############################################################################
