@@ -26,8 +26,8 @@ need to touch the screen or read the display.
 
 AetherSDR is building gateware for openHPSDR-style radios. Every change is
 proven on an RF test bench that AI agents run: they key the radio into a dummy
-load and measure what comes out. On that bench the tinySA Ultra is the
-instrument agents use most often. To be useful to them it has to be operated
+load and measure what comes out. On that bench the tinySA Ultra is one of the
+many instruments agents use to test. To be useful to them it has to be operated
 the way software operates things: through an interface, not through a touch
 screen.
 
