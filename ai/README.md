@@ -104,8 +104,13 @@ On a tinySA Ultra+ ZS407 (hardware V0.5.4), 2026-11-10:
 - Screen captures after keypad presses in analyzer and generator mode: the
   keypad closes as after a touch entry.
 
-Not yet tested: the `calibrate` failure replies (it needs the cable removed),
-the timeout, and pressing every one of the 600 items (all were listed; a
+- `calibrate` with the CAL-to-RF cable removed: `calibrate failed: signal level
+  incorrect at initial check (-95.1 dBm); check the cable from CAL to RF` in
+  0.9 s; nothing saved (level offsets, all correction tables and `freq_corr`
+  identical after a reboot).
+
+Not yet tested: the `calibrate failed: test failed …` reply, a low level at a
+later stage, the timeout (none occurs on a working unit), and pressing every one of the 600 items (all were listed; a
 representative set of each kind was pressed: settings, values, actions,
 children of callback-opened menus, generator items, INTERNALS).
 
