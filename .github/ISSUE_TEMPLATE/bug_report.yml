@@ -1,0 +1,63 @@
+name: Bug Report
+description: TinySAAI firmware or its tools aren't behaving as expected
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Problems that also happen on the **official tinySA firmware** belong with its
+        authors (github.com/erikkaashoek/tinySA). Please check first.
+        **Security or safety issues:** report privately (see SECURITY.md).
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options: [Console command, Menu access (ui / param / measure), Calibration or self test, Readings, Flashing (ai/flash.py), Build, Documentation]
+    validations:
+      required: true
+  - type: input
+    id: unit
+    attributes:
+      label: Unit and hardware version
+      placeholder: "e.g. tinySA Ultra+ ZS407, HW V0.5.4 max2871"
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Firmware version
+      description: "The reply to `version`, e.g. tinySA4_v1.4-310-gcc11ef6-TinySAAI"
+    validations:
+      required: true
+  - type: input
+    id: toolchain
+    attributes:
+      label: Compiler, if you built the image yourself
+      placeholder: "arm-none-eabi-gcc --version"
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened, and what did you expect?
+    validations:
+      required: true
+  - type: textarea
+    id: transcript
+    attributes:
+      label: Console transcript and steps to reproduce
+      description: "The exact commands sent and the replies, and what was connected to RF and CAL."
+      render: text
+    validations:
+      required: true
+  - type: dropdown
+    id: stock
+    attributes:
+      label: Does it also happen on the official firmware?
+      options: ["No, only on TinySAAI", "Yes, on both", "Not checked"]
+    validations:
+      required: true
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Safety
+      options:
+        - label: "This involves stored calibration, flashing or the generator output (if so, consider reporting privately)"

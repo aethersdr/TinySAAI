@@ -116,7 +116,4 @@ children of callback-opened menus, generator items, INTERNALS).
 
 ## Backlog
 
-- `calibrate harmonic` (above 5.34 / 7.37 GHz, needs an external source).
-- `selftest` results as text instead of only on screen.
-- Machine-readable errors for the remaining commands that accept bad input
-  silently.
+See [`ROADMAP.md`](../ROADMAP.md).

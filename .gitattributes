@@ -1,0 +1,6 @@
+# GitHub linguist: third-party libraries are vendored, docs are documentation.
+# No text/eol rules here: upstream files keep their own line endings (some are
+# CRLF), and normalising them would turn every upstream merge into conflicts.
+lib/** linguist-vendored
+docs/** linguist-documentation
+*.jpg binary

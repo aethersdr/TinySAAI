@@ -1,0 +1,58 @@
+# TinySAAI CODEOWNERS
+#
+# Three tiers, LAST MATCHING PATTERN WINS. The file runs broad → specific so the
+# more restrictive tiers override the broader ones:
+#
+#   Tier 3 (work, broad default)        — the `*` line, then the reclaimed dirs
+#   Tier 2 (infrastructure)             — *.md, .github/ scaffolding, Makefile
+#   Tier 1 (governance, recovery, supply) — bottom of file
+#
+# Matching: a pattern with no slash (`*.md`) or only a trailing slash (`docs/`)
+# matches at ANY depth; only a leading slash anchors to the repository root.
+#
+# Tier 1 here covers the code that writes flash and the path that flashes a
+# unit: a mistake there can cost a unit its calibration or make it unflashable
+# (Principle III). .gitmodules and the lib/ChibiOS pointer decide which
+# upstream code, and which commit of it, the firmware is built from.
+#
+# Team rosters live in the GitHub org. A team must have access to this
+# repository for its entries to take effect (see GOVERNANCE.md §Enforcement).
+# No bot is a member of any team, so a bot-opened PR always needs a human
+# approver.
+
+# ── Tier 3: work, broad default ──────────────────────────────────────────────
+*                                   @aethersdr/reviewers
+
+# ── Tier 2: infrastructure ───────────────────────────────────────────────────
+# Markdown outside the work directories reclaimed below: README, ROADMAP,
+# CHANGELOG, AGENTS.md, CLAUDE.md, GEMINI.md, copilot-instructions.
+*.md                                @aethersdr/infrastructure
+.github/                            @aethersdr/infrastructure
+THIRD_PARTY_LICENSES                @aethersdr/infrastructure
+/Makefile                           @aethersdr/infrastructure
+
+# ── Tier 3: work directories, markdown included ──────────────────────────────
+# ORDER IS LOAD-BEARING: these must stay BELOW the *.md line, or their markdown
+# silently falls back to Tier 2.
+/src/                               @aethersdr/reviewers
+/ai/                                @aethersdr/reviewers
+/boards/                            @aethersdr/reviewers
+/tools/                             @aethersdr/reviewers
+/docs/                              @aethersdr/reviewers
+
+# ── Tier 1: governance, recovery and supply chain — maintainer-only ──────────
+CONSTITUTION.md                     @aethersdr/maintainers
+.specify/memory/constitution.md     @aethersdr/maintainers
+GOVERNANCE.md                       @aethersdr/maintainers
+CONTRIBUTING.md                     @aethersdr/maintainers
+CODE_OF_CONDUCT.md                  @aethersdr/maintainers
+LICENSE                             @aethersdr/maintainers
+SECURITY*                           @aethersdr/maintainers
+/.github/CODEOWNERS                 @aethersdr/maintainers
+/.github/workflows/                 @aethersdr/maintainers
+/src/flash.c                        @aethersdr/maintainers
+/src/fw_update.*                    @aethersdr/maintainers
+/boards/*.ld                        @aethersdr/maintainers
+/ai/flash.py                        @aethersdr/maintainers
+/.gitmodules                        @aethersdr/maintainers
+/lib/ChibiOS                        @aethersdr/maintainers

@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: "📋 RFC — is your change significant? Read this first"
+    url: https://github.com/aethersdr/TinySAAI/blob/ai/GOVERNANCE.md#rfc-process
+    about: "Changes to what valid input does, stored structures, guards, the flashing path, calibration algorithms or the toolchain need an approved RFC before a PR."
+  - name: "🔒 Security or safety issue"
+    url: https://github.com/aethersdr/TinySAAI/security/advisories/new
+    about: "Report privately — never in a public issue."
+  - name: "📡 The official tinySA firmware or the instrument itself"
+    url: https://groups.io/g/tinysa
+    about: "Questions about the instrument and the official firmware belong with the tinySA community, not here."

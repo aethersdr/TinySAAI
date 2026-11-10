@@ -1,0 +1,57 @@
+TinySAAI — licences of the code in this repository
+==================================================
+
+TinySAAI is a fork of the tinySA firmware. The firmware as a whole, and
+TinySAAI's own changes, are distributed under the GNU General Public License,
+version 3 or (at your option) any later version (see LICENSE). The upstream
+repository has no licence file; the licence is stated in the headers of its
+source files. Parts of the tree carry other licences, listed below. Every file
+keeps the notices it came with.
+
+tinySA firmware (upstream)
+  Source  : https://github.com/erikkaashoek/tinySA
+  Base    : ab5ecd5b51280a0165275471eff65004c956f115 (tinySA4_v1.4-302)
+  Licence : GPL-3.0-or-later, per the source file headers
+  Authors : Erik Kaashoek; TAKAHASHI Tomohiro (TTRFTECH, edy555), whose NanoVNA
+            firmware it derives from; Dmitry (DiSlord); and the contributors in
+            the git history
+  Notes   : src/vna_browser.c carries no notice of its own; it comes from the
+            upstream tree as distributed.
+
+lib/ChibiOS (git submodule)
+  Project : ChibiOS, as forked by edy555 for the NanoVNA
+  Source  : https://github.com/edy555/ChibiOS (branch I2SFULLDUPLEX)
+  Pinned  : 0cfe7f528599d634c7e77b27984b24b9ad0c4d4c
+  Licence : ChibiOS/RT kernel: GPL-3.0-or-later (lib/ChibiOS/license.txt and
+            file headers). ChibiOS/HAL and other parts: Apache-2.0, per their
+            file headers.
+  Copyright (C) 2006..2016 Giovanni Di Sirio
+
+ChibiOS-derived files in src/
+  Files   : src/chprintf.c, src/hal_adc_lld.c, src/drivers/usbcfg.c,
+            src/drivers/usbcfg.h
+  Licence : Apache-2.0, per their headers (modified by the tinySA authors and,
+            in src/chprintf.c, by TinySAAI)
+  Copyright (C) 2006..2016 Giovanni Di Sirio
+
+lib/FatFs
+  Project : FatFs R0.14b, a generic FAT filesystem module
+  Source  : http://elm-chan.org/fsw/ff/
+  Licence : FatFs licence (BSD-style, one condition: redistributions of source
+            code retain the copyright notice, the condition and the disclaimer;
+            see the header of lib/FatFs/ff.c)
+  Copyright (C) 2021, ChaN
+
+Si446x radio library definitions
+  Files   : src/drivers/si446x.h, src/drivers/si446x_defs.h
+  Licence : GPL-3.0, per their headers
+  Copyright (C) 2017 Zak Kemble
+
+Silicon Laboratories Si446x material
+  Files   : src/drivers/si446x_cmd.h, src/drivers/si446x_patch.h,
+            src/drivers/si4463_radio_config.h, src/drivers/si4468_radio_config.h,
+            src/drivers/si4468/radio_config_Si4468_*.h
+  Notes   : Command definitions, the chip patch and radio configurations
+            generated with Silicon Laboratories' tools. Where a header carries a
+            notice it is Silicon Laboratories, Inc. (2015 or 2017), with no
+            licence stated. Included as in the upstream tree.

@@ -1,0 +1,69 @@
+name: RFC (Request for Comments)
+description: Propose a change that needs maintainer approval before implementation
+labels: [rfc]
+title: "[RFC] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Before you write any code
+
+        An approved RFC is required for: **changing what valid input does**, **changing a
+        stored structure**, **weakening a guard**, **changing a calibration or measurement
+        algorithm**, **changing the generator's output limits or input protection**,
+        **changing the flashing path**, **changing the toolchain**, **new hardware targets**,
+        **new dependencies**, and **merging from or offering changes to upstream**.
+        See GOVERNANCE.md.
+
+        **Do not open a PR until this RFC is approved.**
+  - type: checkboxes
+    id: preflight
+    attributes:
+      label: Preflight
+      options:
+        - label: "I have read GOVERNANCE.md and confirmed this change requires an RFC"
+          required: true
+        - label: "I have searched existing issues and this has not been proposed before"
+          required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposal
+      description: "Commands, arguments, replies, and where the change sits in the source"
+    validations:
+      required: true
+  - type: textarea
+    id: users
+    attributes:
+      label: Effect on existing users and stored data (Principle II)
+      description: "What a script or tool written for the official firmware sees; whether any stored structure or calibration is touched"
+    validations:
+      required: true
+  - type: textarea
+    id: recovery
+    attributes:
+      label: Recovery, calibration and signal safety (Principles III and VI)
+      description: "Effect on DFU, flash regions, the stored calibration, the generator output and the input"
+    validations:
+      required: true
+  - type: textarea
+    id: size
+    attributes:
+      label: Code size
+      description: "Image size before and after, against the flash region in boards/STM32F303xC.ld"
+  - type: textarea
+    id: evidence
+    attributes:
+      label: How it will be shown (Principle VIII)
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered

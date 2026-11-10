@@ -1,0 +1,28 @@
+name: Feature Request
+description: Suggest work that does not need an RFC (read-only commands, error replies, console access through the existing guards, docs, tools)
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Changes to what valid input does, stored structures, guards, the flashing path,
+        calibration algorithms or the toolchain need an **RFC** instead — see GOVERNANCE.md.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What an agent cannot do or read today, and why it matters
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposal
+      description: "Command name, arguments and reply format"
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: How will it be shown?
+      description: "Console transcript on a unit, comparison with the screen or a reference instrument (Principle VIII)"

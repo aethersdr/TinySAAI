@@ -133,6 +133,21 @@ bootloader, run `python3 ai/flash.py --already-dfu <image>`, or flash the
 official firmware to go back. Flashing keeps the settings and calibration
 stored in the last 16 KB of flash.
 
+## Contributing
+
+TinySAAI follows the AetherSDR project's governance, adapted for instrument
+firmware:
+
+- [`CONSTITUTION.md`](CONSTITUTION.md): the principles every change upholds.
+- [`GOVERNANCE.md`](GOVERNANCE.md): who decides what, what needs an RFC, and
+  what an AI agent may do on its own.
+- [`CONTRIBUTING.md`](CONTRIBUTING.md) and
+  [`docs/DEVELOPER-GUIDE.md`](docs/DEVELOPER-GUIDE.md): how to submit work, and
+  how to build, flash and add a console command.
+- [`AGENTS.md`](AGENTS.md): the guide for AI coding tools.
+- [`ROADMAP.md`](ROADMAP.md), [`SECURITY.md`](SECURITY.md),
+  [`SUPPORT.md`](SUPPORT.md), [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md).
+
 ## Issues
 
 Report problems with the TinySAAI additions in this repository's
@@ -142,8 +157,10 @@ from the fork, reproduce it on the official firmware first.
 
 ## Licence
 
-GPL-3.0-or-later, the same as the upstream firmware. Upstream's history and
-authorship are kept intact in this repository.
+GPL-3.0-or-later, the same as the upstream firmware ([`LICENSE`](LICENSE)).
+Upstream's history and authorship are kept intact in this repository. ChibiOS,
+FatFs and some driver files carry their own licences; see
+[`THIRD_PARTY_LICENSES`](THIRD_PARTY_LICENSES).
 
 ## Note
 
