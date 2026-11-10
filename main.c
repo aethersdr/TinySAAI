@@ -2887,6 +2887,10 @@ static const VNAShellCommand commands[] =
     { "param", ai_cmd_param,       CMD_WAIT_MUTEX },  // TinySAAI
     { "measure", ai_cmd_measure,   CMD_WAIT_MUTEX },  // TinySAAI
     { "readout", ai_cmd_readout,   CMD_WAIT_MUTEX },  // TinySAAI
+#ifdef __BANDS__
+    { "band", ai_cmd_band,         CMD_WAIT_MUTEX },  // TinySAAI
+#endif
+    { "limit", ai_cmd_limit,       CMD_WAIT_MUTEX },  // TinySAAI
     { "correction", cmd_correction,   CMD_RUN_IN_LOAD },
     { "calc", cmd_calc, CMD_WAIT_MUTEX | CMD_RUN_IN_LOAD},
     { "menu", cmd_menu, CMD_WAIT_MUTEX | CMD_RUN_IN_LOAD },

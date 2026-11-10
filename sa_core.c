@@ -6490,6 +6490,10 @@ static int show_test_info = FALSE;
 static const char *test_hint;             // last line of the test list while waiting for a touch
 static volatile int test_wait = false;
 static float test_value;
+// TinySAAI: "selftest report" runs the full test without waiting for a touch
+static volatile bool selftest_from_console = false;
+static volatile bool selftest_running = false;
+static bool selftest_no_signal = false;
 
 #ifdef TINYSA4
 static freq_t spur_test_freq = 930000000;
@@ -7184,6 +7188,7 @@ void selftest(int test)
         if (peakLevel < -60) {
           test_step = TEST_END;
           test_hint = "Cable connected? Touch screen to continue";   // drawn in the list, a direct draw was overwritten
+          selftest_no_signal = true;                               // TinySAAI
           goto resume2;
         }
 
@@ -7195,7 +7200,7 @@ void selftest(int test)
         }
         resume:
         test_wait = true;
-        if (!check_touched())
+        if (!selftest_from_console && !check_touched())   // TinySAAI: nobody at the screen
           return;
 //        wait_user();
       }
@@ -7210,7 +7215,7 @@ void selftest(int test)
     ili9341_drawstring_7x13("Touch screen to continue", 50, 215);
    resume2:
     test_wait = true;
-    if (!check_touched())
+    if (!selftest_from_console && !check_touched())       // TinySAAI: nobody at the screen
       return;
 quit:
 #ifdef TINYSA4
@@ -7229,6 +7234,8 @@ quit:
     ignore_stored = false;
     reset_settings(M_LOW);
     set_refer_output(-1);
+    selftest_from_console = false;                      // TinySAAI
+    selftest_running = false;
 #ifdef TINYSA4
   } else if (test == 1) {
     float average, p;

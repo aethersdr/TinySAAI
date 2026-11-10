@@ -8,12 +8,14 @@ What a software agent can set and read on a tinySA Ultra+ (ZS407, hardware V0.5.
 |---|---|---|
 | Analyzer menus | `ui ls`, `ui get <key>` read; `ui <key> [values] [confirm]` press | 411 items (207 setting, 36 value, 55 action, 56 menu, 2 title, 55 back) |
 | Generator menus (low output) | the same, rooted at the generator menu | 191 items (79 setting, 30 value, 24 action, 27 menu, 3 title, 28 back) |
-| Numeric parameters | `param [name [value [confirm]]]` | 59 (18 write the stored configuration) |
+| Numeric parameters | `param [name [value [confirm]]]` | 60 (18 write the stored configuration) |
 | Measurements | `measure <name> [values]`, `waitscan 2`, `readout` | 16 modes; 15 set up and read on the unit (`nf_store` not run: it saves to flash) |
 | Readings | `readout` (marker and measurement text as on screen), `marker`, `scan`, `data`, `channel` | all modes |
 | Settings summary | `state` | one line per setting |
 | Level calibration | `calibrate` | blocking, prints the outcome |
-| Console commands | named commands, last table | 110 |
+| Self test | `selftest report` | blocking, prints every step's result |
+| Bands and limit lines | `band`, `limit` | 8 bands; 8 limits per trace |
+| Console commands | named commands, last table | 112 |
 
 ## What is not reachable from the console
 
@@ -52,8 +54,7 @@ Refused by `ui` because they wait for a person at the screen, cut the USB consol
 Not built, or not listed by `ui tree`:
 
 - The menu level calibration (both CALIBRATE items): use the `calibrate` command. The calibration above 5.34/7.37 GHz, which needs an external signal, has no console equivalent yet.
-- Self-test results: `selftest` runs the test, but its results appear only on screen.
-- The band and limit tables (MULTI BAND, the trace TABLE items): their screens enable a band or limit while they are drawn, so they are not listed. `param band_*` and `param limit_*` act on whichever band or limit is active, and nothing on the console selects one.
+- The band and limit menus (MULTI BAND, the trace TABLE items) are not listed by `ui tree`, because their screens enable a band or limit while they are drawn. Use `band` and `limit` instead: list, select and enable, or disable an entry; then `param band_*` or `param limit_*`.
 - Loading from the SD card (file browser), the curve editor (reached only through the guarded IN/OUT CURVE items), and brightness (adjusted with the jog wheel).
 - INTERNALS asks for code 5432 the first time after power-up: `ui config.more.expert_config.internals.<item> 5432 [values]`; later presses need no code.
 
@@ -732,12 +733,12 @@ A prompt left without a value is reported by its text, and the measurement is sw
 
 | Name | Class | Value when generated |
 |---|---|---|
-| `start` | setting | 29.950MHz |
-| `stop` | setting | 30.050MHz |
-| `center` | setting | 30.000MHz |
-| `span` | setting | 100.000kHz |
-| `cw` | setting | 29.950MHz |
-| `reflevel` | setting | 0 |
+| `start` | setting | 0 Hz |
+| `stop` | setting | 900.000MHz |
+| `center` | setting | 450.000MHz |
+| `span` | setting | 900.000MHz |
+| `cw` | setting | 0 Hz |
+| `reflevel` | setting | 30 |
 | `scale` | setting | 10.000000000/ |
 | `attenuation` | setting | 30dB |
 | `actualpower` | config | 0dB |
@@ -756,7 +757,7 @@ A prompt left without a value is reported by its text, and the measurement is sw
 | `fast_speedup` | setting | 0 |
 | `faster_speedup` | setting | 0 |
 | `gridlines` | setting |  |
-| `marker` | setting | 29.999MHz |
+| `marker` | setting | 709.643MHz |
 | `modulation` | setting | 1000Hz |
 | `highoutlevel` | setting | +0.0dBm |
 | `cor_am` | config |  |
@@ -773,13 +774,14 @@ A prompt left without a value is reported by its text, and the measurement is sw
 | `harm_start` | config | 7.370GHz |
 | `exp_aver` | setting |  |
 | `level` | setting |  |
-| `limit_freq` | setting | 0 Hz |
+| `limit_freq` | setting | 60.000MHz |
 | `limit_level` | setting | 0.0 |
 | `band_start` | setting | 0 Hz |
 | `band_end` | setting | 0 Hz |
 | `band_center` | setting | 0 Hz |
 | `band_span` | setting | 0 Hz |
 | `band_level` | setting | 0.0 |
+| `band_name` | setting | x |
 | `marker_time` | setting |  |
 | `var` | setting | AUTO |
 | `nf` | config | 5.0dB |
@@ -788,7 +790,7 @@ A prompt left without a value is reported by its text, and the measurement is sw
 | `direct_stop` | config | 985.000MHz |
 | `overclock` | config | 0 Hz |
 | `rtc_date` | config | 2026/11/10 |
-| `rtc_time` | config | 00:29:05 |
+| `rtc_time` | config | 07:20:11 |
 | `interval` | setting | 00:00:00 |
 | `trigger_grid` | setting | 0 |
 
@@ -908,3 +910,5 @@ Flags: 1 runs in the sweep thread, 2 allowed in load scripts, 4 may run while a 
 | `param` | 1 | param [name [value [confirm]]] |
 | `measure` | 1 | measure [name [values...] [confirm]] |
 | `readout` | 1 | readout: marker and measurement text as on screen |
+| `band` | 1 | band [n [off]]: list, select and enable, or disable a band |
+| `limit` | 1 | limit [n [off]]: the same for the selected trace's limit lines |

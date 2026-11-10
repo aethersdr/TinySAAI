@@ -887,10 +887,48 @@ usage:
 }
 
 
+// TinySAAI: "selftest report" runs the full self test (CONFIG > SELF TEST) without
+// waiting for a touch, then prints every step's result. Needs a cable from CAL to RF.
+static void selftest_report(void)
+{
+  setting.test = 0;
+  setting.test_argument = 0;
+  selftest_no_signal = false;
+  selftest_from_console = true;
+  selftest_running = true;
+  sweep_mode = SWEEP_SELFTEST;
+  for (int t = 0; selftest_running; t++) {
+    if (t >= 6000) {                          // 10 minutes
+      shell_printf("selftest timeout\r\n");
+      return;
+    }
+    chThdSleepMilliseconds(100);
+  }
+  int failed = 0, run = 0;
+  for (uint16_t i = 0; i < TEST_COUNT && test_case[i].kind != TC_END; i++) {
+    static const char * const status[] = {"not_run", "pass", "fail", "critical"};
+    int s = test_status[i];
+    if (s != TS_WAITING) run++;
+    if (s == TS_FAIL || s == TS_CRITICAL) failed++;
+    shell_printf("test %d %s %s\r\n", i + 1, s >= 0 && s < 4 ? status[s] : "unknown",
+                 test_fail_cause[i] ? test_fail_cause[i] : "");
+  }
+  if (selftest_no_signal)
+    shell_printf("selftest failed: no signal at test 3; check the cable from CAL to RF\r\n");
+  else if (failed)
+    shell_printf("selftest failed: %d of %d tests\r\n", failed, run);
+  else
+    shell_printf("selftest ok: %d tests passed\r\n", run);
+}
+
 VNA_SHELL_FUNCTION(cmd_selftest)
 {
+  if (argc == 1 && strcmp(argv[0], "report") == 0) {   // TinySAAI
+    selftest_report();
+    return;
+  }
   if (argc < 1 || argc > 2 || argv[0][0] == '?') {
-    usage_printf("selftest (1-3) [arg]\r\n");
+    usage_printf("selftest (1-3) [arg] | report\r\n");
     return;
   }
   setting.test = my_atoi(argv[0]);

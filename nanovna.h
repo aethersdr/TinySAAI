@@ -1894,6 +1894,8 @@ void ai_cmd_ui(int argc, char *argv[]);
 void ai_cmd_param(int argc, char *argv[]);
 void ai_cmd_measure(int argc, char *argv[]);
 void ai_cmd_readout(int argc, char *argv[]);
+void ai_cmd_band(int argc, char *argv[]);
+void ai_cmd_limit(int argc, char *argv[]);
 #define PULSE do { palClearPad(GPIOC, GPIOC_LED); palSetPad(GPIOC, GPIOC_LED);} while(0)
 //extern int setting_attenuate;
 //extern int settingPowerCal;

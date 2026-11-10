@@ -107,7 +107,7 @@ static const struct { uint8_t mode; uint8_t flags; const char *name; } ai_params
   {KM_HARM_START, AI_CONFIG, "harm_start"}, {KM_EXP_AVER, 0, "exp_aver"}, {KM_LEVEL, 0, "level"},
   {KM_LIMIT_FREQ, 0, "limit_freq"}, {KM_LIMIT_LEVEL, 0, "limit_level"},
   {KM_BAND_START, 0, "band_start"}, {KM_BAND_END, 0, "band_end"}, {KM_BAND_CENTER, 0, "band_center"},
-  {KM_BAND_SPAN, 0, "band_span"}, {KM_BAND_LEVEL, 0, "band_level"},
+  {KM_BAND_SPAN, 0, "band_span"}, {KM_BAND_LEVEL, 0, "band_level"}, {KM_BAND_NAME, 0, "band_name"},
   {KM_MARKER_TIME, 0, "marker_time"}, {KM_VAR, 0, "var"}, {KM_NF, AI_CONFIG, "nf"},
   {KM_LINEAR_SCALE, 0, "linear_scale"}, {KM_DIRECT_START, AI_CONFIG, "direct_start"},
   {KM_DIRECT_STOP, AI_CONFIG, "direct_stop"}, {KM_OVERCLOCK, AI_CONFIG, "overclock"},
@@ -633,4 +633,84 @@ void ai_cmd_measure(int argc, char *argv[])
   }
   ui_mode_normal();
   shell_printf("measure %s\r\n", ai_measure_names[setting.measurement < n ? setting.measurement : 0]);
+}
+
+// ---------------------------------------------------------------- bands and limits
+
+#ifdef __BANDS__
+// band            every band: n|on/off|active|start|end|level|name
+// band <n>        select band n and enable it (as pressing it in the band menu)
+// band <n> off    disable band n (the last enabled band stays)
+// Then param band_start/band_end/band_center/band_span/band_level/band_name set it.
+void ai_cmd_band(int argc, char *argv[])
+{
+  if (argc >= 1) {
+    int n = (int)my_atoui(argv[0]) - 1;
+    if (n < 0 || n >= BANDS_MAX || argc > 2 || (argc == 2 && strcmp(argv[1], "off") != 0)) {
+      shell_printf("usage: band [1..%d [off]]\r\n", BANDS_MAX);
+      return;
+    }
+    if (argc == 2) {
+      int count = 0;
+      for (int i = 0; i < BANDS_MAX; i++) if (setting.bands[i].enabled) count++;
+      if (count == 1 && setting.bands[n].enabled) {
+        shell_printf("error: at least one band stays enabled\r\n");
+        return;
+      }
+      setting.bands[n].enabled = false;
+      setting.bands[n].name[0] = 0;
+    } else {
+      active_band = n;
+      setting.bands[n].enabled = true;
+    }
+    dirty = true;
+    update_frequencies();
+    update_grid();
+    redraw_request |= REDRAW_CAL_STATUS | REDRAW_AREA | REDRAW_FREQUENCY;
+  }
+  for (int i = 0; i < BANDS_MAX; i++) {
+    band_t *b = &setting.bands[i];
+    shell_printf("%d|%s|%s|%U|%U|%.1f|", i + 1, b->enabled ? "on" : "off",
+                 i == active_band ? "active" : "-", b->start, b->end, b->level);
+    ai_print_clean(b->name);
+    shell_printf("\r\n");
+  }
+  shell_printf("multi_band %s\r\n", setting.multi_band ? "on" : "off");
+}
+#endif
+
+// limit           the limit lines of the selected trace: n|on/off|active|frequency|level
+// limit <n>       select limit n and enable it
+// limit <n> off   disable limit n (the last enabled one stays)
+// Select the trace with ui trace.trace.trace_<t>; then param limit_freq/limit_level.
+void ai_cmd_limit(int argc, char *argv[])
+{
+  if (argc >= 1) {
+    int n = (int)my_atoui(argv[0]) - 1;
+    if (n < 0 || n >= LIMITS_MAX || argc > 2 || (argc == 2 && strcmp(argv[1], "off") != 0)) {
+      shell_printf("usage: limit [1..%d [off]]\r\n", LIMITS_MAX);
+      return;
+    }
+    if (argc == 2) {
+      int count = 0;
+      for (int i = 0; i < LIMITS_MAX; i++) if (setting.limits[current_trace][i].enabled) count++;
+      if (count == 1 && setting.limits[current_trace][n].enabled) {
+        shell_printf("error: at least one limit stays enabled\r\n");
+        return;
+      }
+      setting.limits[current_trace][n].enabled = false;
+    } else {
+      active_limit = n;
+      setting.limits[current_trace][n].enabled = true;
+    }
+    dirty = true;
+    limits_update();
+    redraw_request |= REDRAW_AREA;
+  }
+  shell_printf("trace %d\r\n", current_trace + 1);
+  for (int i = 0; i < LIMITS_MAX; i++) {
+    limit_t *l = &setting.limits[current_trace][i];
+    shell_printf("%d|%s|%s|%U|%.2f\r\n", i + 1, l->enabled ? "on" : "off",
+                 i == active_limit ? "active" : "-", l->frequency, l->level);
+  }
 }

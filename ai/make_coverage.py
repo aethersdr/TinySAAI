@@ -54,7 +54,9 @@ def main(dump_path, gen_path, syntax_path):
              ("ui", "1", "ui [ls [key] | tree | get <key>]; ui <key> [values...] [confirm]"),
              ("param", "1", "param [name [value [confirm]]]"),
              ("measure", "1", "measure [name [values...] [confirm]]"),
-             ("readout", "1", "readout: marker and measurement text as on screen")]
+             ("readout", "1", "readout: marker and measurement text as on screen"),
+             ("band", "1", "band [n [off]]: list, select and enable, or disable a band"),
+             ("limit", "1", "limit [n [off]]: the same for the selected trace's limit lines")]
     out = []
     P = out.append
     P("# TinySAAI coverage\n")
@@ -73,7 +75,9 @@ def main(dump_path, gen_path, syntax_path):
     P("| Readings | `readout` (marker and measurement text as on screen), `marker`, `scan`, `data`, `channel` | all modes |")
     P("| Settings summary | `state` | one line per setting |")
     P("| Level calibration | `calibrate` | blocking, prints the outcome |")
-    P("| Console commands | named commands, last table | %d |\n" % (len(syn) + 4))
+    P("| Self test | `selftest report` | blocking, prints every step's result |")
+    P("| Bands and limit lines | `band`, `limit` | 8 bands; 8 limits per trace |")
+    P("| Console commands | named commands, last table | %d |\n" % (len(syn) + 6))
     P("## What is not reachable from the console\n")
     P("Refused by `ui` because they wait for a person at the screen, cut the USB console, or erase the "
       "configuration (`state` column `refused`):\n")
@@ -85,10 +89,9 @@ def main(dump_path, gen_path, syntax_path):
     P("\nNot built, or not listed by `ui tree`:\n")
     P("- The menu level calibration (both CALIBRATE items): use the `calibrate` command. The calibration "
       "above 5.34/7.37 GHz, which needs an external signal, has no console equivalent yet.")
-    P("- Self-test results: `selftest` runs the test, but its results appear only on screen.")
-    P("- The band and limit tables (MULTI BAND, the trace TABLE items): their screens enable a band or "
-      "limit while they are drawn, so they are not listed. `param band_*` and `param limit_*` act on "
-      "whichever band or limit is active, and nothing on the console selects one.")
+    P("- The band and limit menus (MULTI BAND, the trace TABLE items) are not listed by `ui tree`, "
+      "because their screens enable a band or limit while they are drawn. Use `band` and `limit` "
+      "instead: list, select and enable, or disable an entry; then `param band_*` or `param limit_*`.")
     P("- Loading from the SD card (file browser), the curve editor (reached only through the guarded IN/OUT "
       "CURVE items), and brightness (adjusted with the jog wheel).")
     P("- INTERNALS asks for code 5432 the first time after power-up: "
